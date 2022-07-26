@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title>博饼</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <!-- <button class="stop">slow</button> -->
+    <button class="goon">掷骰</button>
+    <!-- <canvas id="canvas" width="500" height="500" style="border: 1px solid #ccc;"></canvas> -->
+
+    <script>
+        const canvas = document.getElementById('canvas')
+        const context = canvas.getContext('2d')
+
+        // 1 创建 Image 对象
+        const dice_action_0 = new Image()
+        // 2 引入图片
+        dice_action_0.src = 'resource/dice_action_0.png'
+
+        const dice_action_1 = new Image()
+        dice_action_1.src = 'resource/dice_action_1.png'
+
+        const dice_action_2 = new Image()
+        dice_action_2.src = 'resource/dice_action_2.png'
+
+        const dice_action_3 = new Image()
+        dice_action_3.src = 'resource/dice_action_3.png'
+
+        const dice_1 = new Image()
+        dice_1.src = 'resource/dice_1.png'
+
+        const dice_2 = new Image()
+        dice_2.src = 'resource/dice_2.png'
+
+        const dice_3 = new Image()
+        dice_3.src = 'resource/dice_3.png'
+
+        const dice_4 = new Image()
+        dice_4.src = 'resource/dice_4.png'
+
+        const dice_5 = new Image()
+        dice_5.src = 'resource/dice_5.png'
+
+        const dice_6 = new Image()
+        dice_6.src = 'resource/dice_6.png'
+
+        // 3 等待图片加载完成
+        // dice_action_0.onload = () => {
+        //     // 4 使用 drawImage() 方法渲染图片
+        //     // context.drawImage(dice_action_0, 100, 100)
+        // }
+
+        var index = 0;
+
+        function draw_next() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            index = (index + 1) % 4
+            // console.log(index)
+            context.drawImage(eval("dice_action_" + index), 100, 100)
+        }
+
+        var goon = document.querySelector(".goon");
+        goon.onclick = function() {
+
+            var intervalID = setInterval(draw_next, 125, index)
+            // context.drawImage(dice_action_0, 100, 100)
+            // context.drawImage(dice_action_1, 100, 100)
+
+        };
+
+    </script>
+</body>
+
+</html>
