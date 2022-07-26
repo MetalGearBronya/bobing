@@ -9,7 +9,7 @@
 <body>
     <canvas id="canvas" width="500" height="500"></canvas>
     <!-- <button class="stop">slow</button> -->
-    <button class="goon">掷骰</button>
+    <button class="roll">掷骰</button>
     <!-- <canvas id="canvas" width="500" height="500" style="border: 1px solid #ccc;"></canvas> -->
 
     <script>
@@ -54,6 +54,9 @@
         //     // context.drawImage(dice_action_0, 100, 100)
         // }
 
+        var xhr = new XMLHttpRequest();
+        const url = "http://127.0.0.1:8081"
+
         var index = 0;
 
         function draw_next() {
@@ -63,14 +66,32 @@
             context.drawImage(eval("dice_action_" + index), 100, 100)
         }
 
-        var goon = document.querySelector(".goon");
-        goon.onclick = function() {
+        var rolling;
 
-            var intervalID = setInterval(draw_next, 125, index)
-            // context.drawImage(dice_action_0, 100, 100)
-            // context.drawImage(dice_action_1, 100, 100)
+        function draw_dice(num) {
+            clearInterval(rolling)
+            context.drawImage(eval("dice_" + num), 100, 100)
+        }
+
+        var roll = document.querySelector(".roll");
+        roll.onclick = function() {
+
+            rolling = setInterval(draw_next, 125, index)
+
+
+            // 发请求
+            xhr.open("GET", url + "/roll", false);
+            xhr.send()
+            console.log(xhr.responseText)
+            var json = JSON.parse(xhr.responseText);
+
+            setTimeout(draw_dice, json.timeout, json.num)
 
         };
+
+        // post写法
+        // xhr.open("POST", url, false);
+        // xhr.send(resultList);
 
     </script>
 </body>
