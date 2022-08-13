@@ -1,4 +1,8 @@
 
+def roll():
+	spin_duration = [1.5, 2, 2.5, 3, 3.5]
+	obj = {"num" : [random.randint(1, 6) for i in range(6)], "timeout" : [int(random.choice(spin_duration) * 1000) for i in range(6)]}
+	return obj
 
 symbol = {1: '⚀', 2: '⚁', 3: '⚂', 4: '⚃', 5: '⚄', 6: '⚅'}
 

@@ -1,7 +1,8 @@
 from websocket_server import WebsocketServer
 import random
 import json
-from bobing import to_symbol
+from bobing import roll, to_symbol
+import time
 
 # Called for every client connecting (after handshake)
 def new_client(client, server):
@@ -22,12 +23,11 @@ def message_received(client, server, message):
 		message = message[:200]+'..'
 	print("Client(%d) said: %s" % (client['id'], message))
 	if message == 'roll':
-		spin_duration = [1.5, 2, 2.5, 3, 3.5]
-		obj = {"num" : [random.randint(1, 6) for i in range(6)], "timeout" : [int(random.choice(spin_duration) * 1000) for i in range(6)]}
+		obj = roll()
 		server.send_message_to_all(json.dumps(obj).encode('utf-8'))
 		delay = max(obj['timeout']) / 1000
-		import time
 		time.sleep(delay)
+		
 		name = client['name']
 		result, reward = to_symbol(obj['num'])
 		server.send_message_to_all(f'{name}掷出了{result}')
