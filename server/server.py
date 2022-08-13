@@ -27,10 +27,12 @@ def message_received(client, server, message):
 		server.send_message_to_all(json.dumps(obj).encode('utf-8'))
 		delay = max(obj['timeout']) / 1000
 		time.sleep(delay)
-		
+
 		name = client['name']
 		result, reward = to_symbol(obj['num'])
 		server.send_message_to_all(f'{name}掷出了{result}')
+	if message == 'get_history':
+		server.send_message(client, '测试数据<br>测试数据')
 
 
 PORT=9001
