@@ -14,6 +14,8 @@ from socketserver import ThreadingMixIn, TCPServer, StreamRequestHandler
 
 from websocket_server.thread import WebsocketServerThread
 
+from urllib import parse
+
 logger = logging.getLogger(__name__)
 logging.basicConfig()
 
@@ -419,16 +421,9 @@ class WebSocketHandler(StreamRequestHandler):
         headers = {}
         # first line should be HTTP GET
         http_get = self.rfile.readline().decode().strip()
-        # query = {}
-        # print(http_get.split(' '))
-        # for item in http_get.split(' ')[1].strip('/').strip('?').split('&'):
-        #     key, value = item.split('=')
-        #     query[key] = value
-        # print(query)
 
-        from urllib import parse
         parameters = dict(parse.parse_qsl(http_get.split(' ')[1].strip('/').strip('?')))
-        # print(parameters)
+
         assert http_get.upper().startswith('GET')
         # remaining should be headers
         while True:
@@ -441,8 +436,6 @@ class WebSocketHandler(StreamRequestHandler):
 
     def handshake(self):
         parameters, headers = self.read_http_headers()
-        # print(headers)
-        print(parameters)
 
         try:
             assert headers['upgrade'].lower() == 'websocket'
@@ -461,7 +454,6 @@ class WebSocketHandler(StreamRequestHandler):
         with self._send_lock:
             self.handshake_done = self.request.send(response.encode())
         self.valid_client = True
-        print(parameters['name'])
         self.name = parameters['name']
         self.server._new_client_(self)
 

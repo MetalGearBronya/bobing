@@ -1,30 +1,7 @@
 from websocket_server import WebsocketServer
 import random
 import json
-
-
-symbol = {1: '⚀', 2: '⚁', 3: '⚂', 4: '⚃', 5: '⚄', 6: '⚅'}
-
-def to_symbol(num_list):
-	# num_dict = {}
-	# for num in num_list:
-	# 	if num not in num_dict:
-	# 		num_dict[num] = 1
-	# 	else:
-	# 		num_dict[num] += 1
-
-	# if num_dict[4] == 4 and num_dict[1] == 2:
-	# 	return symbol[4] * 4 + symbol[1] * 2, '状元插金花'
-	#
-	# for num in [2, 3, 5, 6]:
-	# 	if num_dict[num] == 6:
-	# 		return symbol[num] * 6, '六勃黑'
-
-	string = ''
-	for num in sorted(num_list):
-		string += symbol[num] + ' '
-	return string, '无'
-
+from bobing import to_symbol
 
 # Called for every client connecting (after handshake)
 def new_client(client, server):
@@ -54,9 +31,6 @@ def message_received(client, server, message):
 		name = client['name']
 		result, reward = to_symbol(obj['num'])
 		server.send_message_to_all(f'{name}掷出了{result}')
-		# for client in server.clients:
-		# 	if client.name = name:
-        #     	self._unicast(client, msg)
 
 
 PORT=9001
