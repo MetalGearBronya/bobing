@@ -1,19 +1,63 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-
-<head>
+  <head>
     <meta charset="utf-8">
     <title>博饼</title>
-</head>
-
-<body>
-    <canvas id="canvas" width="500" height="500"></canvas>
-    <!-- <button class="stop">slow</button> -->
-    <button class="roll">掷骰</button>
-    <!-- <canvas id="canvas" width="500" height="500" style="border: 1px solid #ccc;"></canvas> -->
+  </head>
+  <body>
+    <!-- 姓名输入框，空白时无法提交 -->
+    <input id="input" type="text" placeholder="输入你的名字" onkeyup="verify_name()">
+    <button id="connect" disabled="true">建立连接</button>
+    <!-- 显示结果 -->
+    <div id="log"></div>
+    <!-- 骰子画布 -->
+    <canvas id="canvas" width="500" height="400"></canvas>
+    <button id='roll'>掷骰</button>
 
     <script>
-        const canvas = document.getElementById('canvas')
+      var input = document.getElementById('input')
+      var connect_button = document.getElementById('connect')
+      var log = document.getElementById('log')
+
+      var socket
+
+      // 建立连接
+      function connect(name) {
+        socket = new WebSocket('ws://localhost:9001?name=' + name)
+        // nodejs后端才用下面这个
+        // socket.id = 'myid'
+        console.log(socket)
+        socket.addEventListener('open', function() {
+          log.innerHTML = '正在连接……'
+          // 如果是重连，innerHTML为空，应该从服务器拉一份全局log
+        })
+
+        socket.onmessage = function(message) {
+          console.log(message)
+          try {
+            var json= JSON.parse(message.data);
+            for (i = 0; i < 6; i++) {
+              setTimeout(draw_dice, json.timeout[i], json.num[i], i)
+            }
+          } catch {
+            log.innerHTML = log.innerHTML + "<br>" + message.data
+          }
+        }
+      }
+
+      connect_button.onclick = function() {
+        var value = input.value
+        connect(value)
+        connect_button.disabled = true;
+        connect_button.innerHTML = "连接成功";
+      }
+
+
+
+
+
+
+      const canvas = document.getElementById('canvas')
         const context = canvas.getContext('2d')
 
         // 1 创建 Image 对象
@@ -48,52 +92,67 @@
         const dice_6 = new Image()
         dice_6.src = 'resource/dice_6.png'
 
-        // 3 等待图片加载完成
-        // dice_action_0.onload = () => {
-        //     // 4 使用 drawImage() 方法渲染图片
-        //     // context.drawImage(dice_action_0, 100, 100)
-        // }
-
-        var xhr = new XMLHttpRequest();
-        const url = "http://127.0.0.1:8081"
-
         var index = 0;
 
-        function draw_next() {
-            context.clearRect(0, 0, canvas.width, canvas.height);
+        function draw_next(pos) {
+            x = 100 * (pos % 3 + 1)
+            y = 100 * (Math.floor(pos / 3) + 1)
+
+            context.clearRect(x, y, 100, 100);//canvas.width, canvas.height);
             index = (index + 1) % 4
             // console.log(index)
-            context.drawImage(eval("dice_action_" + index), 100, 100)
+            // console.log("drawing dice at " + x + ", " + y)
+            context.drawImage(eval("dice_action_" + index), x, y)
         }
 
         var rolling;
 
-        function draw_dice(num) {
-            clearInterval(rolling)
-            context.drawImage(eval("dice_" + num), 100, 100)
+        function draw_dice(num, pos) {
+            x = 100 * (pos % 3 + 1)
+            y = 100 * (Math.floor(pos / 3) + 1)
+            console.log("stopping " + "dice " + (pos + 1))
+            clearInterval(eval("rolling_" + pos))
+            context.clearRect(x, y, 100, 100);
+            context.drawImage(eval("dice_" + num), x, y)
         }
 
-        var roll = document.querySelector(".roll");
+        var roll = document.querySelector("#roll");
         roll.onclick = function() {
 
-            rolling = setInterval(draw_next, 125, index)
+            rolling_0 = setInterval(draw_next, 125, 0)
+            rolling_1 = setInterval(draw_next, 125, 1)
+            rolling_2 = setInterval(draw_next, 125, 2)
+            rolling_3 = setInterval(draw_next, 125, 3)
+            rolling_4 = setInterval(draw_next, 125, 4)
+            rolling_5 = setInterval(draw_next, 125, 5)
 
 
             // 发请求
-            xhr.open("GET", url + "/roll", false);
-            xhr.send()
-            console.log(xhr.responseText)
-            var json = JSON.parse(xhr.responseText);
-
-            setTimeout(draw_dice, json.timeout, json.num)
+            socket.send('roll')
 
         };
 
-        // post写法
-        // xhr.open("POST", url, false);
-        // xhr.send(resultList);
 
+
+
+
+        function verify_name() {
+          if (input.value === "") {
+            connect_button.disabled = true;
+          } else {
+            connect_button.disabled = false;
+          }
+        }
     </script>
-</body>
-
+    <style>
+      #log {
+        width: 223px;
+        height: 200px;
+        border: 1px solid #000;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column-reverse;
+      }
+    </style>
+  </body>
 </html>
